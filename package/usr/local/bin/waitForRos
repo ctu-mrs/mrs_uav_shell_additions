@@ -1,0 +1,32 @@
+#!/usr/bin/python3
+
+import rospy
+import rosnode
+import time
+import os
+import rostopic
+import rosgraph.masterapi
+
+class Node:
+
+    def checkMaster(self):
+        try:
+            rosgraph.masterapi.Master('/rostopic').getPid()
+        except:
+            return False
+
+        return True
+
+    def __init__(self):
+
+        UAV_NAME = os.getenv('UAV_NAME')
+
+        while not self.checkMaster():
+            print("waiting for Master")
+            time.sleep(1.0)
+
+if __name__ == '__main__':
+    try:
+        node = Node()
+    except rospy.ROSInterruptException:
+        pass
