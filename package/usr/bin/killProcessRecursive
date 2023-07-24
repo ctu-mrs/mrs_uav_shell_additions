@@ -11,7 +11,7 @@ for child in $(ps -o pid,ppid -ax | \
   awk "{ if ( \$2 == $pes ) { print \$1 }}")
 do
   # echo "Killing child process $child because ppid = $pes"
-  killp $child
+  killProcessRecursive $child
 done
 
 # echo "killing $1"
