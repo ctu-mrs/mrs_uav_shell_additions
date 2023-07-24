@@ -1,18 +1,18 @@
 #!/bin/bash
 
 if [ $# -eq 0 ]; then
-  echo "The command killp() needs an argument, but none was provided!"
-  return
+  echo "$0: The command $0() needs an argument, but none was provided!"
+  exit
 else
-  pes=$1
+  INPUT_PID=$1
 fi
 
 for child in $(ps -o pid,ppid -ax | \
-  awk "{ if ( \$2 == $pes ) { print \$1 }}")
+  awk "{ if ( \$2 == $INPUT_PID ) { print \$1 }}")
 do
-  # echo "Killing child process $child because ppid = $pes"
-  killProcessRecursive $child
+  echo "$0: calling itself on child process $child"
+  $0 $child
 done
 
-# echo "killing $1"
+echo "$0: killing the leaf process with PID $1"
 kill -9 "$1" > /dev/null 2> /dev/null
