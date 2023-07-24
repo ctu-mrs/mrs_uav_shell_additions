@@ -19,10 +19,12 @@ class Node:
 
     def __init__(self):
 
-        UAV_NAME = os.getenv('UAV_NAME')
-
         while not self.checkMaster():
             print("waiting for Master")
+            time.sleep(1.0)
+
+        while not rospy.has_param('/run_id'):
+            print("waiting for /run_id parameter")
             time.sleep(1.0)
 
 if __name__ == '__main__':
