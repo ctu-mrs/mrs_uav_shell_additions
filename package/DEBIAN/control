@@ -1,5 +1,5 @@
 Package: mrs-uav-shell-additions
 Version: 1.0.4
-Architecture: amd64
+Architecture: any
 Maintainer: Tomas Baca <tomas.baca@fel.cvut.cz>
 Description: A program that greets you.
