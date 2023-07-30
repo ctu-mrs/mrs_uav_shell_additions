@@ -9,7 +9,7 @@ echo "$0: building the package"
 
 ARTIFACTS_FOLDER=$1
 
-sudo apt-get install dpkg-dev
+sudo apt-get -y install dpkg-dev
 
 echo "$0: building the package into '$ARTIFACTS_FOLDER'"
 
