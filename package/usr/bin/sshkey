@@ -54,18 +54,19 @@ done
 
 # copy the key from mrs_uav_deployment
 if [ -d $HOME/git/mrs_uav_deployment ]; then
-  cp $HOME/git/mrs_uav_deployment/ssh/$SSH_KEY_NAME ~/.ssh/
-  cp $HOME/git/mrs_uav_deployment/ssh/$SSH_KEY_NAME.pub ~/.ssh/
+  MRS_UAV_DEPLOYMENT=$HOME/git/mrs_uav_deployment
 else
-  cp /opt/ros/noetic/share/mrs_uav_deployment/ssh/$SSH_KEY_NAME ~/.ssh/
-  cp /opt/ros/noetic/share/mrs_uav_deployment/ssh/$SSH_KEY_NAME.pub ~/.ssh/
+  MRS_UAV_DEPLOYMENT=/opt/ros/noetic/share/mrs_uav_deployment
 fi
+
+cp $MRS_UAV_DEPLOYMENT/ssh/$SSH_KEY_NAME ~/.ssh/
+cp $MRS_UAV_DEPLOYMENT/ssh/$SSH_KEY_NAME.pub ~/.ssh/
 
 # set the correct chmod to the keys
 chmod 0600 ~/.ssh/$SSH_KEY_NAME
 
 # set git user name
-local git_user_name=$(grep -hr "$SSH_KEY_NAME" $REPO_PATH/dotssh/git_usernames | cut -d ' ' -f2-)
+git_user_name=$(grep -hr "$SSH_KEY_NAME" $MRS_UAV_DEPLOYMENT/git_usernames | cut -d ' ' -f2-)
 
 if [ -z "$git_user_name" ]; then
   git_user_name=$SSH_KEY_NAME
