@@ -25,16 +25,7 @@ elif [ -x "$(whereis vim | awk '{print $2}')" ]; then
   HEADLESS=""
 fi
 
-case "$SHELL" in
-  *bash*)
-    fucking_shell_offset="0"
-    ;;
-  *zsh*)
-    fucking_shell_offset="1"
-    ;;
-esac
-
-for ((i=$fucking_shell_offset; i < ${#HOSTS[*]}+$fucking_shell_offset; i++));
+for ((i=0; i < ${#HOSTS[*]}; i++));
 do
 
   HOST="${HOSTS[$i]}"
@@ -66,7 +57,7 @@ cp $MRS_UAV_DEPLOYMENT/ssh/$SSH_KEY_NAME.pub ~/.ssh/
 chmod 0600 ~/.ssh/$SSH_KEY_NAME
 
 # set git user name
-git_user_name=$(grep -hr "$SSH_KEY_NAME" $MRS_UAV_DEPLOYMENT/git_usernames | cut -d ' ' -f2-)
+git_user_name=$(grep -hr "$SSH_KEY_NAME" $MRS_UAV_DEPLOYMENT/ssh/git_usernames | cut -d ' ' -f2-)
 
 if [ -z "$git_user_name" ]; then
   git_user_name=$SSH_KEY_NAME
