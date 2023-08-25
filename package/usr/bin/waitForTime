@@ -3,13 +3,18 @@
 import rospy
 import rosnode
 import time
+import os
+import random
 
 class Node:
 
     def __init__(self):
 
+        UAV_NAME = os.getenv('UAV_NAME')
+
         try:
-            rospy.init_node('waitForTime', anonymous=True)
+            random_str = ''.join(random.choice(string.ascii_letters) for i in range(8))
+            rospy.init_node('waitForTime_'+UAV_NAME+'_'+random_str, anonymous=True)
         except:
             return
             pass

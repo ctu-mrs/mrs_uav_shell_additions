@@ -16,6 +16,10 @@ echo "$0: building the package into '$ARTIFACTS_FOLDER'"
 mkdir -p $ARTIFACTS_FOLDER
 
 dpkg-deb --build --root-owner-group package
+
+sed -i "s/(/($epoch:/" ./debian/changelog
+sed -i "s/)/.${build_flag})/" ./debian/changelog
+
 dpkg-name package.deb
 
 mv *.deb $ARTIFACTS_FOLDER
