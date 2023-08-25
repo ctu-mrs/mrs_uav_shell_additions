@@ -17,8 +17,12 @@ mkdir -p $ARTIFACTS_FOLDER
 
 dpkg-deb --build --root-owner-group package
 
-sed -i "s/(/($epoch:/" ./debian/changelog
-sed -i "s/)/.${build_flag})/" ./debian/changelog
+epoch=1
+# SHA=$(git rev-parse --short HEAD)
+build_flag=$(date +%Y%m%d.%H%M%S)
+
+sed -i "s/(/($epoch:/" ./DEBIAN/changelog
+sed -i "s/)/.${build_flag})/" ./DEBIAN/changelog
 
 dpkg-name package.deb
 
