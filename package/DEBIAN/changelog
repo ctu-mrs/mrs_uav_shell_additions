@@ -1,5 +1,5 @@
-mrs-uav-shell-additions (1:1.0.10) unstable; urgency=medium
+mrs-uav-shell-additions (1:1:1.0.10.20230825.074628) unstable; urgency=medium
 
-  * Initial release. (Closes: #XXXXXX)
+  * Initial release. (1:Closes: #XXXXXX.20230825.074628)
 
  -- klaxalk <klaxalk@klaxalk>  Fri, 25 Aug 2023 07:38:33 +0200

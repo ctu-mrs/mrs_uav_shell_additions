@@ -4,17 +4,31 @@ import rospy
 import rosnode
 import time
 import os
+import rosgraph.masterapi
 import random
+import string
 
 class Node:
+
+    def checkMaster(self):
+        try:
+            rosgraph.masterapi.Master('/rostopic').getPid()
+        except:
+            return False
+
+        return True
 
     def __init__(self):
 
         UAV_NAME = os.getenv('UAV_NAME')
 
+        while not self.checkMaster():
+            print("waiting for Master")
+            time.sleep(1.0)
+
         try:
-            random_str = ''.join(random.choice(string.ascii_letters) for i in range(8))
-            rospy.init_node('waitForTime_'+UAV_NAME+'_'+random_str, anonymous=True)
+            random_str = str(''.join(random.choices(string.ascii_uppercase + string.digits, k=8)))
+            rospy.init_node("waitForTime_{}_{}".format(UAV_NAME, random_str), anonymous=True)
         except:
             return
             pass

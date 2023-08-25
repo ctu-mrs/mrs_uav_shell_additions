@@ -7,6 +7,7 @@ import os
 import rostopic
 import rosgraph.masterapi
 import random
+import string
 
 class TopicChecker:
 
@@ -46,8 +47,8 @@ class Node:
             time.sleep(1.0)
 
         try:
-            random_str = ''.join(random.choice(string.ascii_letters) for i in range(8))
-            rospy.init_node('waitForOffboard_'+UAV_NAME+'_'+random_str, anonymous=True)
+            random_str = str(''.join(random.choices(string.ascii_uppercase + string.digits, k=8)))
+            rospy.init_node("waitForOffboard_{}_{}".format(UAV_NAME, random_str), anonymous=True)
         except:
             return
             pass
