@@ -21,8 +21,8 @@ epoch=1
 # SHA=$(git rev-parse --short HEAD)
 build_flag=$(date +%Y%m%d.%H%M%S)
 
-sed -i "s/(/($epoch:/" ./DEBIAN/changelog
-sed -i "s/)/.${build_flag})/" ./DEBIAN/changelog
+sed -i "s/(/($epoch:/" ./package/DEBIAN/changelog
+sed -i "s/)/.${build_flag})/" ./package/DEBIAN/changelog
 
 dpkg-name package.deb
 
