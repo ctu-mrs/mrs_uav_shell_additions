@@ -4,8 +4,8 @@
 # and starts an ssh agent for that key
 
 if [ "$#" -eq "0" ]; then
-  echo please supply a parameter: the ssh key file prefix
-  return
+  echo "$0: please supply one parameter: the ssh key file prefix"
+  exit
 fi
 
 SSH_KEY_NAME="$1"
@@ -25,12 +25,36 @@ elif [ -x "$(whereis vim | awk '{print $2}')" ]; then
   HEADLESS=""
 fi
 
+if [ ! -d $HOME/.ssh ]; then
+  echo "$0: ~/.ssh does not exist, creating it"
+  mkdir $HOME/.ssh
+fi
+
+if [ ! -e $HOME/.ssh/config ]; then
+  echo "$0: ~/.ssh/config does not exist, creating it"
+
+  touch $HOME/.ssh/config
+
+  for ((i=0; i < ${#HOSTS[*]}; i++));
+  do
+
+    HOST="${HOSTS[$i]}"
+
+    echo "host $HOST" >> $HOME/.ssh/config
+    echo "  hostname $HOST" >> $HOME/.ssh/config
+    echo "  user git" >> $HOME/.ssh/config
+    echo "  identityfile ~/.ssh/id_rsa" >> $HOME/.ssh/config
+    echo "" >> $HOME/.ssh/config
+
+  done
+fi
+
 for ((i=0; i < ${#HOSTS[*]}; i++));
 do
 
   HOST="${HOSTS[$i]}"
 
-  echo "Updating .ssh/config for $HOST with $SSH_KEY_NAME"
+  echo "$0: Updating .ssh/config for $HOST with $SSH_KEY_NAME"
 
   # comment out all keys in for the host
   $VIM_BIN $HEADLESS -nEs -c "delmarks!" -c "%g/^host $HOST/norm {ma}mb" -c "'a,'b g/^\s\+identityfile/norm I# " -c "delmarks!" -c "wqa" -- $HOME/.ssh/config
@@ -43,18 +67,15 @@ do
 
 done
 
-# copy the key from mrs_uav_deployment
-if [ -d $HOME/git/mrs_uav_deployment ]; then
-  MRS_UAV_DEPLOYMENT=$HOME/git/mrs_uav_deployment
-else
-  MRS_UAV_DEPLOYMENT=/opt/ros/noetic/share/mrs_uav_deployment
-fi
+MRS_UAV_DEPLOYMENT=`rospack find mrs_uav_deployment`
 
 cp $MRS_UAV_DEPLOYMENT/ssh/$SSH_KEY_NAME ~/.ssh/
 cp $MRS_UAV_DEPLOYMENT/ssh/$SSH_KEY_NAME.pub ~/.ssh/
 
 # set the correct chmod to the keys
-chmod 0600 ~/.ssh/$SSH_KEY_NAME
+if [ -e ~/.ssh/$SSH_KEY_NAME ]; then
+  chmod 0600 ~/.ssh/$SSH_KEY_NAME
+fi
 
 # set git user name
 git_user_name=$(grep -hr "$SSH_KEY_NAME" $MRS_UAV_DEPLOYMENT/ssh/git_usernames | cut -d ' ' -f2-)
@@ -65,7 +86,11 @@ fi
 
 git config --global --replace-all user.name "$git_user_name"
 
-echo "git user.name set to $(git config --global user.name)"
+echo "$0: git user.name set to $(git config --global user.name)"
 
 eval `ssh-agent`
 ssh-add ~/.ssh/$SSH_KEY_NAME
+
+echo "$0: starting new shell with ssh-agent"
+
+bash -i
