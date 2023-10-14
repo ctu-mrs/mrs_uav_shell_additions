@@ -37,7 +37,7 @@ if [ ! -e $HOME/.ssh/config ]; then
 
   for ((i=0; i < ${#HOSTS[*]}; i++));
   do
-  
+
     HOST="${HOSTS[$i]}"
 
     echo "host $HOST" >> $HOME/.ssh/config
@@ -45,7 +45,7 @@ if [ ! -e $HOME/.ssh/config ]; then
     echo "  user git" >> $HOME/.ssh/config
     echo "  identityfile ~/.ssh/id_rsa" >> $HOME/.ssh/config
     echo "" >> $HOME/.ssh/config
-  
+
   done
 fi
 
