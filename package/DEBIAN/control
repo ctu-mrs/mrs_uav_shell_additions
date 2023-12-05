@@ -1,5 +1,5 @@
 Package: mrs-uav-shell-additions
-Version: 1.0.11
+Version: 1.0.12
 Architecture: all
 Maintainer: Tomas Baca <tomas.baca@fel.cvut.cz>
 Description: Set of shell-expanding binaries and configs for the MRS group.
