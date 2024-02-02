@@ -42,6 +42,10 @@ class Node:
 
         UAV_NAME = os.getenv('UAV_NAME')
 
+        while UAV_NAME == None:
+            rospy.logerr('[ERROR]: Environment variable UAV_NAME not set!')
+            time.sleep(1.0)
+
         while not self.checkMaster():
             print("waiting for Master")
             time.sleep(1.0)

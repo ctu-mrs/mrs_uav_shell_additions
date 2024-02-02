@@ -42,6 +42,10 @@ class Node:
 
         UAV_NAME = os.getenv('UAV_NAME')
 
+        while UAV_NAME == None:
+            rospy.logerr('[ERROR]: Environment variable UAV_NAME not set!')
+            time.sleep(1.0)
+
         while not self.checkMaster():
             print("waiting for Master")
             time.sleep(1.0)
@@ -61,6 +65,7 @@ class Node:
             "/" + UAV_NAME + "/estimation_manager/diagnostics",
             "/" + UAV_NAME + "/estimation_manager/uav_state",
             "/" + UAV_NAME + "/estimation_manager/odom_main",
+            "/" + UAV_NAME + "/hw_api/connected",
         ]
 
         checkers = []

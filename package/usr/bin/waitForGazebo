@@ -40,15 +40,13 @@ class Node:
 
     def __init__(self):
 
-        UAV_NAME = os.getenv('UAV_NAME')
-
         while not self.checkMaster():
             print("waiting for Master")
             time.sleep(1.0)
 
         try:
             random_str = str(''.join(random.choices(string.ascii_uppercase + string.digits, k=8)))
-            rospy.init_node("waitForGazebo_{}_{}".format(UAV_NAME, random_str), anonymous=True)
+            rospy.init_node("waitForGazebo_{}".format(random_str), anonymous=True)
         except:
             return
             pass
