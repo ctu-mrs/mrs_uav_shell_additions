@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# This script serves to launch a ros node with gdb attached
+# This script serves to launch a ros2 node with gdb attached
 # to it in a separate tmux split.
 # It can also be launched separately by specifying path to the executable.
 
-if [ $# -lt 1 ]; then
-  echo "You must specify path to the executable to be debugged. Ending."
+if [ $# -lt 2 ]; then
+  echo "You must specify the tty to be used and the path to the executable to be debugged. Ending."
   exit 1;
 fi
 
@@ -13,10 +13,12 @@ if [ -z $TMUX ]; then
   exit 1;
 fi
 
-orig_tty=`tty`
+orig_tty=$1
+shift
 tmpfile=$(mktemp /tmp/debug_roslaunch_env.XXXXXXXX)
 export -p > $tmpfile
 pre_cmd="source $HOME/.bashrc; source $tmpfile; rm $tmpfile"
 gdb_cmd="gdb -ex 'tty $orig_tty' -ex run --args $@"
-cmd="$pre_cmd; $gdb_cmd; exit"
+cmd="$pre_cmd; $gdb_cmd; exit "
 tmux split-window -h "bash -c \"$cmd\""
+ 
