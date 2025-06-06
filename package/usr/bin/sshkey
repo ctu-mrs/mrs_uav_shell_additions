@@ -93,4 +93,4 @@ ssh-add ~/.ssh/$SSH_KEY_NAME
 
 echo "$0: starting new shell with ssh-agent"
 
-bash -i
+$SHELL -i
