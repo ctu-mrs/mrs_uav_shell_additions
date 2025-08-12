@@ -67,7 +67,7 @@ do
 
 done
 
-MRS_UAV_DEPLOYMENT=`rospack find mrs_uav_deployment`
+MRS_UAV_DEPLOYMENT=`ros2 pkg prefix mrs_uav_deployment`/share/mrs_uav_deployment
 
 cp $MRS_UAV_DEPLOYMENT/ssh/$SSH_KEY_NAME ~/.ssh/
 cp $MRS_UAV_DEPLOYMENT/ssh/$SSH_KEY_NAME.pub ~/.ssh/
@@ -85,6 +85,7 @@ if [ -z "$git_user_name" ]; then
 fi
 
 git config --global --replace-all user.name "$git_user_name"
+git config --global --replace-all user.email "$git_user_name@$git_user_name.com"
 
 echo "$0: git user.name set to $(git config --global user.name)"
 
