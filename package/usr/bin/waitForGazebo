@@ -35,16 +35,10 @@ class MyNode(Node):
 
     def __init__(self):
 
-        UAV_NAME = os.getenv('UAV_NAME')
-
-        while UAV_NAME == None:
-            print('[ERROR]: Environment variable UAV_NAME not set!')
-            time.sleep(1.0)
-
         try:
             random_str = str(''.join(random.choices(string.ascii_uppercase + string.digits, k=8)))
 
-            super().__init__("waitForGazebo_{}_{}".format(UAV_NAME, random_str))
+            super().__init__("waitForGazebo_{}".format(random_str))
         except:
             return
 
