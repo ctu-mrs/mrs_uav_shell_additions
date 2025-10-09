@@ -81,7 +81,7 @@ fi
 git_user_name=$(grep -hr "$SSH_KEY_NAME" $MRS_UAV_DEPLOYMENT/ssh/git_usernames | cut -d ' ' -f2-)
 
 if [ -z "$git_user_name" ]; then
-  git_user_name=$SSH_KEY_NAME
+  git_user_name="$SSH_KEY_NAME"
 fi
 
 git config --global --replace-all user.name "$git_user_name"
