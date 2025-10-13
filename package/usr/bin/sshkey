@@ -78,14 +78,19 @@ if [ -e ~/.ssh/$SSH_KEY_NAME ]; then
 fi
 
 # set git user name
-git_user_name=$(grep -hr "$SSH_KEY_NAME" $MRS_UAV_DEPLOYMENT/ssh/git_usernames | cut -d ' ' -f2-)
+git_user_name=$(grep -hr "$SSH_KEY_NAME" $MRS_UAV_DEPLOYMENT/ssh/git_usernames.csv | awk -F ', *' '{ print $2 }')
+git_user_email=$(grep -hr "$SSH_KEY_NAME" $MRS_UAV_DEPLOYMENT/ssh/git_usernames.csv | awk -F ', *' '{ print $3 }')
 
 if [ -z "$git_user_name" ]; then
   git_user_name="$SSH_KEY_NAME"
 fi
 
+if [ -z "$git_user_email" ]; then
+  git_user_email="$git_user_name@$git_user_name.com"
+fi
+
 git config --global --replace-all user.name "$git_user_name"
-git config --global --replace-all user.email "$git_user_name@$git_user_name.com"
+git config --global --replace-all user.email "$git_user_email"
 
 echo "$0: git user.name set to $(git config --global user.name)"
 
