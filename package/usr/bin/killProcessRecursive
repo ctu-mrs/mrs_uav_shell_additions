@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ $# -eq 0 ]; then
   echo "$0: The command $0() needs an argument, but none was provided!"

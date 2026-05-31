@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # this script swaps the ssh key lines in .ssh/config for a given user name
 # and starts an ssh agent for that key
