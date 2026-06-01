@@ -2,7 +2,10 @@
   "name": "mrs-uav-shell-additions",
   "version": "2.0.0",
   "build_type": "raw_copy",
-  "source_dir": "package",
+  "install_mapping": {
+    "package/usr/bin": "bin",
+    "package/etc/ctu-mrs": "package/etc/ctu-mrs"
+  },
   "build_depends": [],
   "exec_depends": []
 }
