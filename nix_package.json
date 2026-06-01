@@ -1,0 +1,8 @@
+{
+  "name": "mrs_uav_shell_additions",
+  "version": "2.0.0",
+  "build_type": "raw_copy",
+  "source_dir": "package",
+  "build_depends": [],
+  "exec_depends": []
+}
