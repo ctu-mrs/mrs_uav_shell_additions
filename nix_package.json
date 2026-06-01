@@ -1,5 +1,5 @@
 {
-  "name": "mrs_uav_shell_additions",
+  "name": "mrs-uav-shell-additions",
   "version": "2.0.0",
   "build_type": "raw_copy",
   "source_dir": "package",
