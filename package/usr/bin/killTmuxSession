@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+# --confirmed is only passed by tmux.conf's menu; any other invocation falls back to
+# an interactive prompt instead of instantly killing the session
+if [ "$1" != "--confirmed" ]; then
+  read -r -p "This will kill every pane in the current tmux session. Type 'yes' to continue: " reply
+  if [ "$reply" != "yes" ]; then
+    echo "Aborted."
+    exit 1
+  fi
+fi
+
+sleep 1
+
+# not consumed by anything in this repo -- read by the linux-setup dotfiles repo's shell rc
+# hooks (if installed) to cd back into this directory on the operator's next tmux session
+pwd >> /tmp/tmux_restore_path.txt
+
+ts="$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)"
+banner="$(cat <<BANNER
+
+###################################################################################
+# [$ts] TMUX SESSION KILLED (prefix+k -> killProcessRecursive)
+###################################################################################
+BANNER
+)"
+
+tmux list-panes -s -F "#{pane_id} #{pane_pid} #{pane_tty}" | while read -r id pid tty; do
+  # skip this helper pane so it can't kill itself mid-loop
+  [ "$id" = "$TMUX_PANE" ] && continue
+  # write to the pane's own tty so the banner lands wherever that pane's output is piped
+  printf '%s\n\n' "$banner" > "$tty" 2>/dev/null
+  killProcessRecursive "$pid"
+done
