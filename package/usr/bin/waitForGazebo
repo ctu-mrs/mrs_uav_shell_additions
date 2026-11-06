@@ -1,24 +1,23 @@
 #!/usr/bin/env python3
 
-import time
-import os
 import random
 import string
 
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy
 
 from rosidl_runtime_py.utilities import get_message
 
 class TopicChecker:
 
-    def __init__(self, topic, node):
+    def __init__(self, topic, node, qos=10):
 
         self.topic = topic.split(' ')[0]
 
         msg_class = get_message(topic.split(' ')[1])
 
-        self.sub = node.create_subscription(msg_class, self.topic, self.callback, 10)
+        self.sub = node.create_subscription(msg_class, self.topic, self.callback, qos)
 
         self.got = False
 
@@ -35,21 +34,21 @@ class MyNode(Node):
 
     def __init__(self):
 
-        try:
-            random_str = str(''.join(random.choices(string.ascii_uppercase + string.digits, k=8)))
+        random_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
 
-            super().__init__("waitForGazebo_{}".format(random_str))
-        except:
-            return
+        super().__init__("waitForGazebo_{}".format(random_str))
+
+        # the spawner status is latched, it is published once the spawner accepts spawn calls
+        latched = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE, durability=DurabilityPolicy.TRANSIENT_LOCAL)
 
         topics = [
-            "/mrs_drone_spawner/diagnostics mrs_msgs/msg/GazeboSpawnerDiagnostics",
+            ("/mrs_drone_spawner/status mrs_msgs/msg/GazeboSpawnerStatus", latched),
         ]
 
         self.checkers = []
 
-        for topic in topics:
-            self.checkers.append(TopicChecker(topic, self))
+        for topic, qos in topics:
+            self.checkers.append(TopicChecker(topic, self, qos))
 
         self.timer = self.create_timer(1.0, self.doAction)
 
