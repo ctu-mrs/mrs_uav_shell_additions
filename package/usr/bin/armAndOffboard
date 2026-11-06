@@ -1,0 +1,157 @@
+#!/usr/bin/env python3
+
+# Arms the UAV and switches it to offboard through the HW API, then exits.
+#
+# PX4 rejects arming until its own preflight checks pass and rejects offboard until the control output is
+# enabled (e.g., by automatic_start), so both are retried until hw_api/status confirms them. The UAV is re-armed
+# if it disarms before offboard is on, up to MAX_DISARMS times (automatic_start disarms when it gives up, the script
+# would re-arm forever). Run it after waitForAutomaticStart when automatic_start is used.
+#
+# Simulation only: on a real UAV, switching an RC-armed UAV to offboard would make automatic_start take off
+# without the pilot's consent. It refuses to run unless RUN_TYPE is "simulation".
+
+import time
+import os
+import random
+import string
+import sys
+
+import rclpy
+from rclpy.node import Node
+
+from mrs_msgs.msg import HwApiStatus
+from std_srvs.srv import SetBool, Trigger
+
+SERVICE_TIMEOUT = 10.0
+
+# hw_api/status comes at 1 Hz and follows the FCU heartbeat, give it time to reflect a successful call
+SETTLE_TIME = 2.0
+
+# give up when the UAV disarms this many times before offboard is on
+MAX_DISARMS = 3
+
+class MyNode(Node):
+
+    def __init__(self):
+
+        UAV_NAME = os.environ['UAV_NAME']
+
+        random_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+
+        super().__init__("armAndOffboard_{}_{}".format(UAV_NAME, random_str))
+
+        self.status_topic = "/" + UAV_NAME + "/hw_api/status"
+
+        self.sub = self.create_subscription(HwApiStatus, self.status_topic, self.callback, 10)
+
+        self.client_arming   = self.create_client(SetBool, "/" + UAV_NAME + "/hw_api/arming")
+        self.client_offboard = self.create_client(Trigger, "/" + UAV_NAME + "/hw_api/offboard")
+
+        self.status = None
+
+        # the service call in progress: (client, future, name, time of the call)
+        self.pending = None
+
+        self.settle_until = 0.0
+
+        self.disarm_count = 0
+
+        self.failed = False
+
+        self.timer = self.create_timer(1.0, self.doAction)
+
+    def callback(self, msg):
+
+        if self.status is not None and self.status.armed and not msg.armed and not msg.offboard:
+            self.disarm_count += 1
+
+        self.status = msg
+
+    def call(self, client, request, name):
+
+        if not client.service_is_ready():
+            print("waiting for service {}".format(client.srv_name))
+            return
+
+        print(name)
+
+        future = client.call_async(request)
+
+        future.add_done_callback(self.callbackResponse)
+
+        self.pending = (client, future, name, time.monotonic())
+
+    def callbackResponse(self, future):
+
+        if self.pending is None or self.pending[1] is not future:
+            return
+
+        _, _, name, _ = self.pending
+
+        response = future.result()
+
+        if response.success:
+            self.settle_until = time.monotonic() + SETTLE_TIME
+        else:
+            print("{} failed: {}".format(name, response.message))
+
+        self.pending = None
+
+    def doAction(self):
+
+        # one call at a time, a lost reply must not stall the script
+        if self.pending is not None:
+
+            client, future, name, call_time = self.pending
+
+            if time.monotonic() - call_time < SERVICE_TIMEOUT:
+                return
+
+            print("{}: no response, retrying".format(name))
+            client.remove_pending_request(future)
+            self.pending = None
+
+        if time.monotonic() < self.settle_until:
+            return
+
+        if self.status is None:
+            print("waiting for {}".format(self.status_topic))
+            return
+
+        if self.disarm_count >= MAX_DISARMS:
+            print("the UAV disarmed {} times before offboard, automatic_start probably finished, giving up".format(self.disarm_count))
+            self.failed = True
+            rclpy.shutdown()
+            return
+
+        if not self.status.armed:
+            self.call(self.client_arming, SetBool.Request(data=True), "arming")
+
+        elif not self.status.offboard:
+            self.call(self.client_offboard, Trigger.Request(), "switching to offboard")
+
+        else:
+            print("armed and in offboard")
+            rclpy.shutdown()
+
+def main(args=None):
+
+    if os.getenv('UAV_NAME') is None:
+        print('[ERROR]: Environment variable UAV_NAME not set!')
+        sys.exit(1)
+
+    if os.getenv('RUN_TYPE') != 'simulation':
+        print('[ERROR]: armAndOffboard is for simulation only, refusing to run with RUN_TYPE="{}"!'.format(os.getenv('RUN_TYPE', '')))
+        sys.exit(1)
+
+    rclpy.init(args=args)
+
+    node = MyNode()
+
+    rclpy.spin(node)
+
+    sys.exit(1 if node.failed else 0)
+
+if __name__ == '__main__':
+
+    main()

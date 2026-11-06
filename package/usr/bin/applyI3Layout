@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+# Applies an i3 layout with the i3 layout manager (~/.i3/layout_manager.sh) once the given windows are up,
+# the manager only arranges windows that exist when it runs. Does nothing when the manager is not installed.
+#
+# usage: applyI3Layout <layout.json> [window title regex]...
+#
+# the regexes are matched case-insensitively (xdotool search --name)
+#
+# e.g. applyI3Layout ./layout.json 'RViz$' (the title of the rviz main window, its splash screen has a different one)
+
+LAYOUT_MANAGER=~/.i3/layout_manager.sh
+
+# [s] how long to wait for each window, the layout is applied anyway afterwards
+WINDOW_TIMEOUT=60
+
+if [ $# -lt 1 ]; then
+  echo "usage: $(basename "$0") <layout.json> [window title regex]..."
+  exit 1
+fi
+
+layout=$1
+shift
+
+if [ ! -x "$LAYOUT_MANAGER" ]; then
+  echo "$LAYOUT_MANAGER is not installed, not applying $layout"
+  exit 0
+fi
+
+for title in "$@"; do
+
+  deadline=$((SECONDS + WINDOW_TIMEOUT))
+
+  until xdotool search --onlyvisible --name "$title" > /dev/null 2>&1; do
+
+    if [ $SECONDS -ge $deadline ]; then
+      echo "no window '$title' within $WINDOW_TIMEOUT s, applying the layout anyway"
+      break
+    fi
+
+    sleep 0.5
+  done
+done
+
+exec "$LAYOUT_MANAGER" "$layout"
