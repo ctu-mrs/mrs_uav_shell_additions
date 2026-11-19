@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import time
-import os
 import random
 import string
 
@@ -35,12 +33,9 @@ class MyNode(Node):
 
     def __init__(self):
 
-        try:
-            random_str = str(''.join(random.choices(string.ascii_uppercase + string.digits, k=8)))
+        random_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
 
-            super().__init__("waitForGazebo_{}".format(random_str))
-        except:
-            return
+        super().__init__("waitForGazebo_{}".format(random_str))
 
         topics = [
             "/mrs_drone_spawner/diagnostics mrs_msgs/msg/GazeboSpawnerDiagnostics",
