@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-# Waits until automatic_start reports that the UAV can take off (can_takeoff), i.e., its preflight
-# checks pass. Arming before that makes automatic_start abort, as the UAV might already be in the air.
+# Waits until automatic_start reports that it can turn control output ON (ready_to_enable_control_output),
+# i.e., the topic check and the safety area check pass. Arming before that makes automatic_start disarm the UAV.
 #
 # If nobody publishes the topic within NO_PUBLISHER_TIMEOUT (e.g., automatic_start is not running), the script
 # exits after that time. Once a publisher was seen, it waits for the readiness even if the publisher disappears
@@ -30,7 +30,7 @@ class MyNode(Node):
 
         super().__init__("waitForAutomaticStart_{}_{}".format(UAV_NAME, random_str))
 
-        self.topic = "/" + UAV_NAME + "/automatic_start/can_takeoff"
+        self.topic = "/" + UAV_NAME + "/automatic_start/ready_to_enable_control_output"
 
         self.sub = self.create_subscription(Bool, self.topic, self.callback, 10)
 
